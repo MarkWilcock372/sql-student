@@ -8,7 +8,8 @@ This lists 44 patients admitted to London hospitals over 5 days between Feb 26th
 SELECT
 	*
 FROM
-	PatientStay ps ;
+	PatientStay ps
+;
 
 /*
 1. List the patients -
@@ -24,25 +25,39 @@ c) only the Surgery wards
 -- Write the SQL statement here
 
 SELECT
-	ps.PatientId, ps.AdmittedDate, ps.DischargeDate, ps.Ward, ps.Hospital
-	, DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 AS LengthOfStay
-from
-	PatientStay ps 
-WHERE ps.Hospital in ('Oxleas', 'PRUH')
-AND MONTH(ps.AdmittedDate) = 2
-AND ps.AdmittedDate BETWEEN '2024-02-01' AND '2024-02-29'
-and PS.Ward like '%Surgery'
+	ps.PatientId
+	,ps.AdmittedDate
+	,ps.DischargeDate
+	,ps.Ward
+	,ps.Hospital
+	,CASE ps.Ward WHEN 'Day Surgery' THEN 'Surgical' ELSE 'Non-Surgical' END AS WardType 
+	,DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 AS LengthOfStay
+	, CASE WHEN DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 > 6 THEN 'Long Stay'
+	WHEN DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 > 3 THEN 'Medium Stay'
+	ELSE 'Short Stay' END AS StayType
+FROM
+	PatientStay ps
+WHERE ps.Ethnicity IS NULL
+/* 
+WHERE ps.Hospital IN ('Oxleas', 'PRUH')
+	AND MONTH(ps.AdmittedDate) = 2
+	AND ps.AdmittedDate BETWEEN '2024-02-01' AND '2024-02-29'
+	AND PS.Ward LIKE '%Surgery'
 ORDER BY ps.AdmittedDate DESC, ps.PatientId DESC
-
+ */
 --AND ps.AdmittedDate >= '2024-02-01'
 --AND PS.AdmittedDate <= '2024-02-29'
 
 -- test date functions
-select MONTH('2024-02-13') AS MyMonth
-SELECT DATEPART(MM, '2024-02-13')
-SELECT DATENAME(MM, '2024-02-13')
+SELECT
+	MONTH('2024-02-13') AS MyMonth
+SELECT
+	DATEPART(MM, '2024-02-13')
+SELECT
+	DATENAME(MM, '2024-02-13')
 
-SELECT LEFT(DATENAME(MM, '2024-02-13'), 3)
+SELECT
+	LEFT(DATENAME(MM, '2024-02-13'), 3)
 
 
 /*
@@ -54,3 +69,133 @@ SELECT LEFT(DATENAME(MM, '2024-02-13'), 3)
 
 -- Write the SQL statement here
 
+SELECT
+	ps.hospital
+	,COUNT(*) AS [Number Of Patients]
+	,SUM(PS.Tariff) AS [Total Tariff]
+FROM
+	PatientStay ps
+GROUP BY ps.Hospital
+HAVING sum(ps.Tariff) > 50
+ORDER BY [Total Tariff] DESC
+
+SELECT * FROM DimHospital h
+
+SELECT
+	ps.PatientId
+	,ps.AdmittedDate
+	,h.Hospital
+	,h.Type
+	, ps.Ethnicity
+FROM
+	 PatientStay ps INNER JOIN DimHospital h ON ps.Hospital = h.Hospital
+where ps.Ethnicity is  NULL
+
+
+SELECT
+	ps.PatientId
+	,ps.AdmittedDate
+	,ps.DischargeDate
+	,ps.Ward
+	,ps.Hospital
+	,CASE ps.Ward WHEN 'Day Surgery' THEN 'Surgical' ELSE 'Non-Surgical' END AS WardType 
+	,DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 AS LengthOfStay
+	, CASE WHEN DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 > 6 THEN 'Long Stay'
+	WHEN DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 > 3 THEN 'Medium Stay'
+	ELSE 'Short Stay' END AS StayType
+FROM
+	PatientStay ps
+WHERE ps.Ethnicity IS NULL
+
+
+SELECT
+	ps.PatientId
+	,ps.AdmittedDate
+	,ps.DischargeDate
+	,ps.Ward
+	,ps.Hospital
+	,DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 AS LengthOfStay	
+	,CASE 
+		WHEN ps.Tariff >= 7 THEN 'High Cost' 
+		WHEN ps.Tariff >= 4 THEN 'Medium Cost' 
+		ELSE 'Low Cost' END AS CostType
+FROM
+	PatientStay ps
+
+SELECT
+	CASE 
+		WHEN ps.Tariff >= 7 THEN 'High Cost' 
+		WHEN ps.Tariff >= 4 THEN 'Medium Cost' 
+		ELSE 'Low Cost' END AS CostType
+		, COUNT(*) As [Number Of Patients]
+		, SUM(ps.Tariff) AS [Total Tariff]
+FROM
+	PatientStay ps
+WHERE CASE 
+		WHEN ps.Tariff >= 7 THEN 'High Cost' 
+		WHEN ps.Tariff >= 4 THEN 'Medium Cost' 
+		ELSE 'Low Cost' END IN ('High Cost', 'Low Cost')
+GROUP BY CASE 
+		WHEN ps.Tariff >= 7 THEN 'High Cost' 
+		WHEN ps.Tariff >= 4 THEN 'Medium Cost' 
+		ELSE 'Low Cost' END
+;
+
+WITH
+	cte
+	AS
+	(
+		SELECT
+			CASE 
+		WHEN ps.Tariff >= 7 THEN 'High Cost' 
+		WHEN ps.Tariff >= 4 THEN 'Medium Cost' 
+		ELSE 'Low Cost' END AS CostType
+		, ps.Tariff
+		FROM
+			PatientStay ps
+	)
+SELECT
+	cte.CostType
+	,COUNT(*) AS NumPatients
+	,SUM(cte.Tariff) as TotalTariff
+FROM
+	cte
+WHERE cte.CostType IN ('High Cost', 'Low Cost')
+GROUP BY cte.CostType
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+;
+WITH
+	cte
+	AS 	(
+
+	SELECT
+			ps.Tariff
+	,CASE 
+		WHEN ps.Tariff >= 7 THEN 'High Cost' 
+		WHEN ps.Tariff >= 4 THEN 'Medium Cost' 
+		ELSE 'Low Cost' END AS CostType
+		FROM
+			PatientStay ps
+	)
+SELECT
+	cte.CostType
+	,sum(cte.Tariff) AS [Total Tariff]
+	,COUNT(*) AS [Number of Customers]
+FROM
+	cte
+GROUP BY cte.CostType

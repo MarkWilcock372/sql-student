@@ -23,6 +23,27 @@ c) only the Surgery wards
 
 -- Write the SQL statement here
 
+SELECT
+	ps.PatientId, ps.AdmittedDate, ps.DischargeDate, ps.Ward, ps.Hospital
+	, DATEDIFF(DAY, ps.AdmittedDate, ps.DischargeDate) + 1 AS LengthOfStay
+from
+	PatientStay ps 
+WHERE ps.Hospital in ('Oxleas', 'PRUH')
+AND MONTH(ps.AdmittedDate) = 2
+AND ps.AdmittedDate BETWEEN '2024-02-01' AND '2024-02-29'
+and PS.Ward like '%Surgery'
+ORDER BY ps.AdmittedDate DESC, ps.PatientId DESC
+
+--AND ps.AdmittedDate >= '2024-02-01'
+--AND PS.AdmittedDate <= '2024-02-29'
+
+-- test date functions
+select MONTH('2024-02-13') AS MyMonth
+SELECT DATEPART(MM, '2024-02-13')
+SELECT DATENAME(MM, '2024-02-13')
+
+SELECT LEFT(DATENAME(MM, '2024-02-13'), 3)
+
 
 /*
 5. How many patients has each hospital admitted? 

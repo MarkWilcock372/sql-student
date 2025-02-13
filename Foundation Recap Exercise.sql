@@ -85,7 +85,7 @@ SELECT
 	ps.PatientId
 	,ps.AdmittedDate
 	,h.Hospital
-	,h.Type
+	,h.HospitalType
 	, ps.Ethnicity
 FROM
 	 PatientStay ps INNER JOIN DimHospital h ON ps.Hospital = h.Hospital

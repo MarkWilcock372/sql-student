@@ -26,3 +26,25 @@ order by
 
 --SELECT DATEDIFF(DAY, '2025-03-12', '2025-04-08')    
 
+SELECT 
+    ps.Hospital
+    , COUNT(*) AS NumberOfPatients 
+    , SUM(ps.Tariff) AS TotalTariff
+    , MAX(ps.Tariff) AS MaxTariff
+FROM PatientStay ps
+GROUP BY 
+    ps.Hospital
+having COUNT(*) < 13
+ORDER BY TotalTariff DESC
+
+SELECT * FROM DimHospitalBad
+
+SELECT
+    ps.PatientId    
+    ,ps.AdmittedDate    
+    ,dh.HospitalType    
+    ,dh.Hospital
+FROM
+    PatientStay ps INNER JOIN
+    DimHospital dh
+    ON ps.Hospital = dh.Hospital

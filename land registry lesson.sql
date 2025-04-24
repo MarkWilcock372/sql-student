@@ -35,9 +35,18 @@ Since the year of the sales is not a column in the table, calculate it with the 
 Order the rows in the result set by Year (earliest first)
 */
 SELECT YEAR('2022-09-21') AS TheYear;
-SELECT TOP 5 YEAR(P.TransactionDate) YearSold FROM PricePaidSW12 p;
 
 
+SELECT
+    YEAR(pps.TransactionDate) AS TheYear
+    ,COUNT(*) AS NumberOfSales
+    ,sum(pps.Price ) / cast(1000000 as float)  AS TotalPriceInMillion
+FROM
+    PricePaidSW12 pps
+GROUP BY
+    YEAR(pps.TransactionDate)
+ORDER by
+    YEAR(pps.TransactionDate)
 
 -- What was the total market value in £ Millions of all the sales each year?
 
@@ -47,9 +56,19 @@ SELECT TOP 5 YEAR(P.TransactionDate) YearSold FROM PricePaidSW12 p;
 
 -- List all the sales in 2018 between £400,000 and £500,000 in Cambray Road (a street in SW12)
 
+SELECT
+    *
+FROM
+    PricePaidSW12 pps
+--where year(pps.TransactionDate) like '2018%'
+WHERE pps.TransactionDate BETWEEN '2018-01-01' AND '2018-12-31'
+AND pps.Price BETWEEN 400000 AND 500000
+AND pps.Street = 'Cambray Road'
+
 /*
 1.  List the 25 latest sales in Ormeley Road with the following fields: TransactionDate, Price, PostCode, PAON 
 2. Join on PropertyTypeLookup to get the PropertyTypeName
 3.  Use a CASE statement for PropertyTypeName column
 */
 
+SELECT * from PropertyTypeLookup

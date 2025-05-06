@@ -11,3 +11,4 @@ ORDER BY ps.Hospital, ps.PatientId
 
 
 
+SELECT Hospital, COUNT(*) FROM PatientStay GROUP by Hospital

@@ -22,13 +22,14 @@ SELECT
 	cc.Country
 	, cc.DateRecorded
 	, cc.DailyCases
-	, 'your answer' AS CumulativeCases
+	, SUM(cc.DailyCases) OVER (PARTITION BY cc.Country ORDER BY cc.DateRecorded) AS CumulativeCases
 FROM
 	CovidCase cc
 where cc.DateRecorded <= '2020-03-15' -- keep # rows returned manageable to avoid scrolling much
 ORDER BY
 	cc.Country
 	, cc.DateRecorded;
+
 
 /*
 Calculate the cumulative number of cases in the UK as a whole
@@ -63,7 +64,7 @@ WITH
     uk (DateRecorded, DailyCases)
     AS
     (
-SELECT
+SELECT 
 	cc.DateRecorded
 	, SUM(cc.DailyCases)
 FROM
@@ -71,12 +72,14 @@ FROM
 GROUP BY
 	cc.DateRecorded
     )
-SELECT 
+SELECT top 3
 	uk.DateRecorded
 	, uk.DailyCases
-	, 'your answer' AS Ranking
+	, RANK() over (order by uk.DailyCases DESC) AS Ranking
 FROM
-	uk;
+	uk
+ORDER BY
+	Ranking
 
 /*
 Find the three days with the highest number of cases in each country 
@@ -98,7 +101,47 @@ FROM
 SELECT
 	*
 FROM
-	cte
+	cte;
+
+
+WITH cte AS (
+    SELECT
+        cc.Country,
+        cc.DateRecorded,
+        cc.DailyCases,
+        RANK() OVER (PARTITION BY cc.Country ORDER BY cc.DailyCases DESC) AS Ranking
+    FROM
+        CovidCase cc
+)
+SELECT
+    cte.Country,
+    cte.DateRecorded,
+    cte.DailyCases,
+    cte.Ranking
+FROM
+    cte
+WHERE
+    cte.Ranking <= 3 -- Limit to the top 3 days for each country
+ORDER BY
+    cte.Country,
+    cte.Ranking;
+
+WITH RankedCases
+ AS (
+    SELECT
+        cc.Country,
+        cc.DateRecorded,
+        cc.DailyCases,
+        RANK() OVER (PARTITION BY cc.Country ORDER BY cc.DailyCases DESC) AS Ranking
+    FROM
+        CovidCase cc
+ )
+ select * from RankedCases
+WHERE
+	Ranking <= 3
+order by Country, Ranking;
+
+
 
 /*
 Advanced Section
@@ -147,6 +190,7 @@ SELECT
 	, cc.Country
 	, cc.DailyCases
 	, AVG(cc.DailyCases) OVER (PARTITION BY cc.Country ORDER BY cc.DateRecorded ROWS BETWEEN 6 PRECEDING AND CURRENT ROW) SevenDayMovingAverageCases
+	, SUM(cc.DailyCases) OVER (PARTITION BY cc.Country ORDER BY cc.DateRecorded ) Test
 FROM
 	CovidCase cc
 ORDER BY

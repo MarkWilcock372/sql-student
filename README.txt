@@ -1,0 +1,1 @@
+This repo is a SQL Course student profile

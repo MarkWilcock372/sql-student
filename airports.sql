@@ -11,10 +11,7 @@ These have  matching columns:
 */
 
 -- Show 10 sample rows of the airports table
-
-SELECT 	TOP 10 * FROM 	countries c 
-WHERE c.continent = 'EU';
-
+SELECT 	TOP 10 * FROM 	countries c;
 
 -- Show 10 sample rows of the airports table
 SELECT 	TOP 10 * FROM 	airports a;
@@ -35,23 +32,10 @@ SELECT TOP 10
 FROM airports a;
 
 -- How many airports are in the airports table?
-SELECT COUNT(*) AS NumberOfAirports FROM airports a;
-
--- are there any airports with the same name?
-SELECT
-    a.name
-    ,COUNT(*) AS NumberOfAirports
-FROM
-    airports a
-GROUP BY a.name
-HAVING COUNT(*) > 1
-ORDER BY NumberOfAirports DESC;
-
 
 -- How many frequencies are in the airport_frequencies table?
 
 -- How many airports of each type?
-
 
 -- Is the airport.ident column unique? i.e. there are no duplicate values
 
@@ -75,24 +59,6 @@ You can do this is several ways: LEFT JOIN, NOT IN, NOT EXISTS,...
   (c) that have a latitude between 49 and 54 degrees
 3. Order from the most northern airports to most southern airports
 */
-
-SELECT
-	a.ident
-	,a.iata_code
-	,a.[name]
-	,a.latitude_deg
-	,a.longitude_deg
-	,a.[type]
-	,a.iso_country
-FROM
-	airports a
-WHERE a.[type] = 'large_airport'
-and a.iso_country IN (SELECT code FROM countries WHERE continent = 'EU')
-
-
-
-
-
 
 
 /*

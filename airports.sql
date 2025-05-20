@@ -33,11 +33,19 @@ FROM airports a;
 
 -- How many airports are in the airports table?
 
+SELECT  
+	COUNT(*) AS NumberOfAirports 
+FROM 
+	airports a
+
 -- How many frequencies are in the airport_frequencies table?
+
 
 -- How many airports of each type?
 
--- Is the airport.ident column unique? i.e. there are no duplicate values
+-- Is the airports.ident column unique? i.e. there are no duplicate values
+
+
 
 /*
 Do a data quality check on the airports_frequencies table
@@ -60,6 +68,7 @@ You can do this is several ways: LEFT JOIN, NOT IN, NOT EXISTS,...
 3. Order from the most northern airports to most southern airports
 */
 
+SELECT * FROM airports
 
 /*
 List the iso_country of the 5 countries with the most airports 
